@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>template engine</title>
+</head>
+<body>
+    <div id="template">
+        <p>I'm {{ posix.name }} from the {{ posix.familly.kind }} {{ posix.familly.name }} family.<br>I was born on {{ posix.birthdate }}. My age is {{ posix.age }} {{ posix.dontexist }}.</p>
+    </div>
+    <script>
+        const dataBase = { 
+            posix: {
+                name: "POSIX timestamp",
+                familly: {
+                    kind: "technical standards",
+                    name: "IEEE 1003"
+                },
+                birthdate: "1970 January 1 00:00:00 UTC",
+                age: new Date()
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('template');
+            var template = container.innerHTML;
+            var pattern = /{{ ([\d, \w, .]*) }}/;
+            var match;
+
+            while ((match = pattern.exec(template)) !== null) {
+                var toModify = match[0];
+                var key = match[1].split('.');
+                var value = decomposer(dataBase, key);
+
+                if (!value) {
+                    console.error(`No value for: ${key}`);
+                    value = '';
+                }
+                template = template.replace(toModify, value);
+            }
+            container.innerHTML = template;
+        });
+
+        function decomposer(data, key) {
+            return key[1] ? decomposer(data[key[0]], key.slice(1)) : data[key[0]];
+        }
+    </script>
+</body>
+</html>
